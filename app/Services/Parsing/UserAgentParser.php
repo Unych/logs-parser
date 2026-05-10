@@ -105,6 +105,10 @@ final class UserAgentParser
 
     private function detectBrowser(string $userAgent): string
     {
+        if (str_contains($userAgent, 'YaBrowser/') || str_contains($userAgent, 'YaSearchBrowser/')) {
+            return UserAgentInfo::BROWSER_YANDEX;
+        }
+
         if (str_contains($userAgent, 'Edg/') || str_contains($userAgent, 'Edge/')) {
             return UserAgentInfo::BROWSER_EDGE;
         }

@@ -22,6 +22,7 @@ final class UserAgentInfo
     public const BROWSER_SAFARI = 'safari';
     public const BROWSER_EDGE = 'edge';
     public const BROWSER_OPERA = 'opera';
+    public const BROWSER_YANDEX = 'yandex';
     public const BROWSER_IE = 'ie';
     public const BROWSER_OTHER = 'other';
 

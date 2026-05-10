@@ -116,6 +116,26 @@ final class UserAgentParserTest extends TestCase
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) CriOS/126.0.0.0 Mobile/15E148 Safari/604.1',
                 UserAgentInfo::BROWSER_CHROME,
             ],
+            'yandex browser windows' => [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0 Yowser/2.5 Safari/537.36',
+                UserAgentInfo::BROWSER_YANDEX,
+            ],
+            'yandex browser macos' => [
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0 Yowser/2.5 Safari/537.36',
+                UserAgentInfo::BROWSER_YANDEX,
+            ],
+            'yandex browser android' => [
+                'Mozilla/5.0 (Linux; arm_64; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0.00.00 SA/3 Mobile Safari/537.36',
+                UserAgentInfo::BROWSER_YANDEX,
+            ],
+            'yandex browser ios' => [
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 YaBrowser/23.3.0.2310.10 Mobile/15E148 Safari/604.1',
+                UserAgentInfo::BROWSER_YANDEX,
+            ],
+            'yandex search browser' => [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaSearchBrowser/24.1.0.0 Safari/537.36',
+                UserAgentInfo::BROWSER_YANDEX,
+            ],
             'unknown' => ['SomeUnknown/1.0', UserAgentInfo::BROWSER_OTHER],
         ];
     }
@@ -150,14 +170,37 @@ final class UserAgentParserTest extends TestCase
     {
         $edgeUa   = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0';
         $operaUa  = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 OPR/110.0.0.0';
+        $yandexUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0 Yowser/2.5 Safari/537.36';
         $chromeUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
         $edge   = $this->parser->parse($edgeUa);
         $opera  = $this->parser->parse($operaUa);
+        $yandex = $this->parser->parse($yandexUa);
         $chrome = $this->parser->parse($chromeUa);
 
         self::assertSame(UserAgentInfo::BROWSER_EDGE, $edge->browser);
         self::assertSame(UserAgentInfo::BROWSER_OPERA, $opera->browser);
+        self::assertSame(UserAgentInfo::BROWSER_YANDEX, $yandex->browser);
         self::assertSame(UserAgentInfo::BROWSER_CHROME, $chrome->browser);
+    }
+
+    public function test_yandex_browser_is_not_classified_as_bot(): void
+    {
+        $info = $this->parser->parse(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0 Yowser/2.5 Safari/537.36'
+        );
+
+        self::assertFalse($info->isBot);
+        self::assertNull($info->botName);
+        self::assertSame(UserAgentInfo::BROWSER_YANDEX, $info->browser);
+    }
+
+    public function test_yandex_bot_is_still_a_bot(): void
+    {
+        $info = $this->parser->parse('Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)');
+
+        self::assertTrue($info->isBot);
+        self::assertSame('YandexBot', $info->botName);
+        self::assertSame(UserAgentInfo::BROWSER_OTHER, $info->browser);
     }
 }
